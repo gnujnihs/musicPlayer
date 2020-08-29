@@ -1,25 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext } from 'react';
+import { AppContext } from './context/appContext';
+
+import Artist from './components/Artist';
+
+import Player from './components/Player';
+import { Wrapper } from './App.styles';
+
+import TopSection from './containers/top';
+import BottomSection from './containers/bottom';
+import MiddleSection from './containers/middle';
+
+import MediaCard from './components/Artist';
 
 function App() {
+  const { queryData: {
+    data,
+    error,
+  } } = useContext(AppContext);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Wrapper>
+      <TopSection />      
+      <MiddleSection />        
+      <BottomSection />
+    </Wrapper>
   );
 }
 
