@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import ProgressBar from '../ProgressBar';
-
+import { AppContext } from '../../context/appContext';
 import useBoolToggler from '../../hooks/useBoolToggler';
 import {
   StyledPlay,
@@ -15,6 +15,9 @@ import {
 const Player = () => {  
   const [ player, setPlayer ] = useState(null);
   const [ currentTime, setCurrentTime ] = useState(0);
+  const { currentSong: {
+    musicSrc = ''
+  } } = useContext(AppContext);
 
   const {
     state: isPaused,
@@ -27,7 +30,14 @@ const Player = () => {
     if (isPaused) player.pause();
     else player.play();
     
-  }, [ isPaused, player ])  
+  }, [ isPaused, player ])
+
+  useEffect(() => {
+    if (!player) return;
+    player.pause();
+    player.play();
+    togglePlayPause();
+  }, [ musicSrc ])
 
   return (   
     <Wrapper> 
@@ -35,9 +45,8 @@ const Player = () => {
         <StyledLeftIcon />
         {isPaused ? <StyledPlay onClick={togglePlayPause}/> : <StyledPause onClick={togglePlayPause}/> }        
         <StyledRightIcon />    
-        <audio 
-          title="testing"
-          src="http://res.cloudinary.com/alick/video/upload/v1502689683/Luis_Fonsi_-_Despacito_ft._Daddy_Yankee_uyvqw9.mp3"
+        <audio
+          src={musicSrc}
           ref={node => setPlayer(node)}
           onTimeUpdate={(node) => {            
             setCurrentTime(player.currentTime)

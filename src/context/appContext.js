@@ -10,70 +10,21 @@ export const AppContextProvider = ({ children }) => {
   const [ state, setState ] = useState({
     ...defaultContext,
   });
+
+  const setQueryData = data => setState(prevState => ({ ...prevState, queryData: data }));
+
+  const setAppError = bool => setState(prevState => ({ ...prevState, appError: bool }))
+  const setAppLoading = bool => setState(prevState => ({ ...prevState, appLoading: bool }))
+
+  const setCurrentSong = data => setState(prevState => ({ ...prevState, currentSong: data }))
   
-  const setUserQuery = (query) => {
-    setState(prevState => {
-      return {
-        ...prevState,
-        userQuery: query,
-      }
-    })
-  }
-
-  const setQueryData = (data) => {
-    setState(prevState => {
-      return {
-        ...prevState,
-        queryData: {
-          data,
-        }
-      }
-    })
-  }
-
-  const setQueryError = (error) => {
-    setState(prevState => {
-      return {
-        ...prevState,
-        queryData: {
-          ...prevState.queryData,
-          error,
-        }
-      }
-    })
-  }
-
-  const setNextSong = (src) => {
-    setState(prevState => {
-      return {
-        ...prevState,
-        playerData: {
-          ...prevState.playerData,
-          src,
-        }
-      }
-    })
-  }
-
-  const setTogglePlayPause = () => {
-    setState(prevState => {
-      return {
-        ...prevState,
-        playerData: {
-          ...prevState.playerData,
-          isPlaying: !prevState.isPlaying,
-        }
-      }
-    })
-  }
   return (
     <AppContext.Provider value={{
       ...state,
-      setUserQuery,
+      setAppError,
       setQueryData,
-      setQueryError,
-      setNextSong,
-      setTogglePlayPause,
+      setAppLoading,
+      setCurrentSong
     }}
     >
       {children}

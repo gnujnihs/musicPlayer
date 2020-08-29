@@ -1,45 +1,49 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useReducer, useEffect } from 'react';
+import axios from 'axios';
 
-const useDataApi = (initialUrl = '', opts) => {
-  const [ url, setUrl ] = useState(initialUrl);
-  const [ data, setData ] = useState('')
-  const [ isLoading, setLoading ] = useState(false)
-  const [ error, setError ] = useState(false)
+import {
+  FETCHING,
+  FETCHED,
+  ERROR
+} from './actions';
+import dataFetchReducer from './reducer';
 
+const useDataApi = (initialUrl, initialData) => {
+  const [url, setUrl] = useState(initialUrl);
+ 
+  const [state, dispatch] = useReducer(dataFetchReducer, {
+    isLoading: false,
+    isError: false,
+    data: initialData,
+  });
+ 
   useEffect(() => {
     let didCancel = false;
-    setLoading(true);
-    
-    (async () => {
+ 
+    const fetchData = async () => {
+      dispatch({ type: FETCHING });
+ 
       try {
-        fetch(url, opts)
-          .then((res) => res.json())
-          .then(json => {
-            setData(json)
-            setLoading(false)
-          })                 
-      } catch {
-        setError(true)
-        setLoading(false)
+        const result = await axios(url);
+ 
+        if (!didCancel) {
+          dispatch({ type: FETCHED, payload: result.data });
+        }
+      } catch (error) {
+        if (!didCancel) {
+          dispatch({ type: ERROR });
+        }
       }
-    })();
-
+    };
+ 
+    fetchData();
+ 
     return () => {
       didCancel = true;
-    }
-      
-  }, [ url ])
+    };
+  }, [url]);
+ 
+  return [state, setUrl];
+};
 
-  const doFetch = useCallback((fetchUrl) => {
-    setUrl(fetchUrl)
-  }, []);
-
-  return {
-    data,
-    isLoading,
-    error,
-    doFetch,
-  } 
-}
-
-export default useDataApi;
+export default useDataApi

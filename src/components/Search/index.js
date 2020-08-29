@@ -1,45 +1,48 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../../context/appContext';
-import useDataApi from '../../hooks/useDataApi';
+import { useDataApi } from '../../hooks';
 import StyledForm from './styles';
 
-const GET_DATA_LINK = (query) => `http://localhost:8080/api?query=${query}`
-
 const Search = () => {
+  const { 
+    setQueryData,
+    setAppError,
+    setAppLoading,
+  } = useContext(AppContext)
   const [ userInput, setUserInput ] = useState('');
-  const { setQueryData, setQueryError } = useContext(AppContext);
+  const [ {
+    data, 
+    isLoading,
+    isError
+  }, doFetch] = useDataApi(`http://localhost:8080/api?query=`, { queryData: [] });
+
   const onUserInput = ({ target: { value }}) => setUserInput(value);
 
-  const { 
-    error,
-    data,
-    isLoading,
-    doFetch,
-  } = useDataApi('');
-
-  useEffect(() => {
-    if (data) {
-      setQueryData(data);
-      console.log('this is data', data);
-    }
-  }, [ data ]);
-
-  useEffect(() => {
-    if (error) {
-      setQueryError(error);
-      console.log(error);
-    }
-  }, [ error ]);
-
-  const onSubmit = (e) => {   
-    e.preventDefault();
-    doFetch(GET_DATA_LINK(userInput))
+  const onSubmit = async (e) => {
+    e.preventDefault();  
+    doFetch(`http://localhost:8080/api?query=${userInput}`)    
   }
+
+  useEffect(() => {
+    if (isLoading) setAppLoading(true)
+    else setAppLoading(false);
+  }, [ isLoading ])
+
+  useEffect(() => {
+    if (isError) setAppError(true)
+    else setAppError(false);
+  }, [ isError ])
+
+  useEffect(() => {
+    if (!data) return;
+
+    setQueryData(data.queryData);
+  }, [ data ])
  
-  return (
+  return (    
     <StyledForm onSubmit={onSubmit}>
       <input type="text" placeholder="Search by Artist, Album or Playlist" onChange={onUserInput} />
-      <button type="submit" disabled={!isLoading || userInput.length < 1}>Search</button>
+      <button type="submit" disabled={!!isLoading || userInput.length < 1}>Search</button>
     </StyledForm>
   )
 }
